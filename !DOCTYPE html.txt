@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ห้องสมุดกฎหมาย</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@300;400;600;700&family=Noto+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E8C97A;
+  --gold-dim: #8B6F35;
+  --dark: #0D0D0F;
+  --dark2: #141418;
+  --dark3: #1C1C22;
+  --dark4: #242430;
+  --border: rgba(201,168,76,0.18);
+  --border-bright: rgba(201,168,76,0.45);
+  --text: #E8E4DC;
+  --text-muted: #7A7670;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Noto Sans Thai',sans-serif;
+  background:var(--dark); color:var(--text); min-height:100vh;
+}
+body::before {
+  content:''; position:fixed; inset:0;
+  background:radial-gradient(ellipse 80% 50% at 50% -5%,rgba(201,168,76,0.07) 0%,transparent 70%);
+  pointer-events:none; z-index:0;
+}
+
+/* LOGIN */
+#login-screen {
+  position:fixed; inset:0; display:flex;
+  align-items:center; justify-content:center; z-index:100; background:var(--dark);
+}
+.login-box {
+  width:340px; padding:44px 36px;
+  border:1px solid var(--border); background:var(--dark2); position:relative;
+}
+.login-box::before {
+  content:''; position:absolute; top:-1px; left:20px; right:20px; height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.login-emblem { font-size:38px; text-align:center; color:var(--gold); margin-bottom:6px; }
+.login-title { font-family:'Noto Serif Thai',serif; font-size:19px; text-align:center; color:var(--gold-light); margin-bottom:3px; }
+.login-sub { font-size:11px; text-align:center; color:var(--text-muted); letter-spacing:.1em; text-transform:uppercase; margin-bottom:32px; }
+.lbl { font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); display:block; margin-bottom:7px; }
+.inp {
+  width:100%; padding:11px 14px; background:var(--dark3); border:1px solid var(--border);
+  color:var(--text); font-family:'Noto Sans Thai',sans-serif; font-size:15px;
+  outline:none; margin-bottom:18px; transition:border-color .2s;
+}
+.inp:focus { border-color:var(--gold-dim); }
+.login-btn {
+  width:100%; padding:12px; background:var(--gold); color:var(--dark);
+  font-family:'Noto Sans Thai',sans-serif; font-size:14px; font-weight:600;
+  letter-spacing:.08em; border:none; cursor:pointer; transition:background .2s;
+}
+.login-btn:hover { background:var(--gold-light); }
+.login-err { margin-top:10px; font-size:12px; color:#e05555; text-align:center; min-height:16px; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
+.shake { animation:shake .35s ease; }
+
+/* LAYOUT */
+#app { display:none; min-height:100vh; position:relative; z-index:1; }
+header {
+  padding:22px 40px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; background:rgba(13,13,15,0.93); backdrop-filter:blur(12px); z-index:50;
+}
+.h-left { display:flex; align-items:center; gap:14px; }
+.h-emblem { font-size:26px; color:var(--gold); }
+.h-title { font-family:'Noto Serif Thai',serif; font-size:17px; color:var(--gold-light); }
+.h-sub { font-size:11px; color:var(--text-muted); letter-spacing:.07em; text-transform:uppercase; }
+.logout-btn {
+  font-size:12px; color:var(--text-muted); letter-spacing:.07em; text-transform:uppercase;
+  cursor:pointer; border:1px solid var(--border); padding:5px 13px;
+  background:none; font-family:'Noto Sans Thai',sans-serif; transition:all .2s;
+}
+.logout-btn:hover { border-color:var(--border-bright); color:var(--text); }
+
+/* TABS */
+.tabs {
+  display:flex; padding:0 40px; border-bottom:1px solid var(--border);
+  background:var(--dark2); overflow-x:auto; gap:0;
+}
+.tab {
+  padding:14px 20px; font-size:13px; color:var(--text-muted);
+  cursor:pointer; border-bottom:2px solid transparent;
+  white-space:nowrap; transition:all .2s; position:relative; top:1px;
+}
+.tab:hover { color:var(--text); }
+.tab.active { color:var(--gold-light); border-bottom-color:var(--gold); }
+
+/* CONTENT */
+.content { padding:36px 40px; max-width:1400px; margin:0 auto; }
+@keyframes fi { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.fi { animation:fi .3s ease; }
+
+/* HOME */
+.home-grid { display:grid; grid-template-columns:1fr 360px; gap:28px; align-items:start; }
+.home-welcome { font-family:'Noto Serif Thai',serif; font-size:24px; color:var(--gold-light); margin-bottom:6px; }
+.home-sub { font-size:13px; color:var(--text-muted); margin-bottom:24px; line-height:1.8; }
+.quick-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.quick-card {
+  background:var(--dark2); border:1px solid var(--border);
+  padding:16px 18px; cursor:pointer; transition:all .2s;
+  display:flex; align-items:center; gap:12px;
+}
+.quick-card:hover { border-color:var(--border-bright); background:var(--dark3); }
+.quick-icon { font-size:22px; }
+.quick-name { font-size:13px; font-weight:500; color:var(--text); }
+.quick-count { font-size:11px; color:var(--text-muted); margin-top:2px; }
+
+/* NOTES */
+.notes-panel {
+  background:var(--dark2); border:1px solid var(--border);
+  display:flex; flex-direction:column; position:relative;
+}
+.notes-panel::before {
+  content:''; position:absolute; top:-1px; left:16px; right:16px; height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.notes-header {
+  padding:14px 18px 12px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.notes-title { font-size:12px; color:var(--gold-light); letter-spacing:.08em; text-transform:uppercase; }
+.notes-save {
+  font-size:11px; color:var(--text-muted); cursor:pointer;
+  border:1px solid var(--border); padding:4px 10px; background:none;
+  font-family:'Noto Sans Thai',sans-serif; transition:all .2s; letter-spacing:.05em;
+}
+.notes-save:hover { border-color:var(--border-bright); color:var(--gold-light); }
+.saved-badge { font-size:11px; color:#4A9; margin-right:6px; opacity:0; transition:opacity .3s; }
+.notes-area {
+  width:100%; min-height:440px; background:transparent; border:none; outline:none;
+  resize:none; color:var(--text); font-family:'Noto Sans Thai',sans-serif;
+  font-size:14px; line-height:1.9; padding:16px 18px;
+}
+.notes-area::placeholder { color:var(--text-muted); }
+
+/* SUBJECT PAGE */
+.subj-header { margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid var(--border); }
+.subj-icon { font-size:28px; margin-bottom:6px; }
+.subj-title { font-family:'Noto Serif Thai',serif; font-size:22px; color:var(--gold-light); margin-bottom:4px; }
+.subj-desc { font-size:13px; color:var(--text-muted); line-height:1.8; }
+
+/* COLUMNS */
+.cols-wrapper { display:flex; gap:16px; align-items:flex-start; overflow-x:auto; padding-bottom:12px; }
+.col-box {
+  background:var(--dark2); border:1px solid var(--border);
+  min-width:250px; width:250px; flex-shrink:0;
+  display:flex; flex-direction:column; position:relative;
+}
+.col-box::before {
+  content:''; position:absolute; top:-1px; left:10px; right:10px; height:1px;
+  background:var(--gold-dim); opacity:.5;
+}
+.col-head {
+  padding:11px 12px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:6px;
+}
+.col-name-edit {
+  font-size:13px; font-weight:500; color:var(--gold-light);
+  background:transparent; border:none; outline:none;
+  font-family:'Noto Sans Thai',sans-serif; width:100%; flex:1;
+  cursor:text;
+}
+.col-name-edit:focus { border-bottom:1px solid var(--gold-dim); }
+.col-del {
+  font-size:17px; color:var(--text-muted); cursor:pointer;
+  background:none; border:none; transition:color .15s; line-height:1; flex-shrink:0;
+}
+.col-del:hover { color:#e05555; }
+.col-files { padding:8px; display:flex; flex-direction:column; gap:6px; flex:1; min-height:50px; }
+.file-item {
+  display:flex; align-items:center; gap:8px;
+  padding:8px 9px; background:var(--dark3); border:1px solid var(--border);
+  cursor:pointer; text-decoration:none; color:inherit; transition:all .2s;
+}
+.file-item:hover { border-color:var(--border-bright); }
+.file-item-icon { font-size:17px; flex-shrink:0; }
+.file-item-info { flex:1; min-width:0; }
+.file-item-name { font-size:12px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.file-item-meta { font-size:10px; color:var(--text-muted); margin-top:1px; text-transform:uppercase; letter-spacing:.04em; }
+.file-item-del {
+  font-size:15px; color:var(--text-muted); cursor:pointer;
+  background:none; border:none; opacity:0; transition:opacity .15s; line-height:1; flex-shrink:0;
+}
+.file-item:hover .file-item-del { opacity:1; }
+.file-item-del:hover { color:#e05555; }
+.col-empty { padding:14px 8px; font-size:12px; color:var(--text-muted); text-align:center; }
+.col-add-file {
+  margin:0 8px 8px; padding:8px; width:calc(100% - 16px);
+  background:none; border:1px dashed var(--border); color:var(--text-muted);
+  font-size:12px; font-family:'Noto Sans Thai',sans-serif;
+  cursor:pointer; transition:all .2s; letter-spacing:.04em;
+}
+.col-add-file:hover { border-color:var(--border-bright); color:var(--gold-light); background:rgba(201,168,76,0.03); }
+.add-col-btn {
+  min-width:160px; width:160px; flex-shrink:0;
+  border:1px dashed var(--border-bright); background:none;
+  color:var(--text-muted); font-size:13px; font-family:'Noto Sans Thai',sans-serif;
+  cursor:pointer; padding:20px 14px; transition:all .2s; letter-spacing:.04em;
+  display:flex; align-items:center; justify-content:center;
+  align-self:stretch; min-height:100px;
+}
+.add-col-btn:hover { border-color:var(--gold-dim); color:var(--gold-light); background:rgba(201,168,76,0.04); }
+
+/* TEXTBOOKS PAGE */
+.textbooks-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));
+  gap:16px;
+}
+.textbook-card {
+  background:var(--dark2); border:1px solid var(--border);
+  padding:20px; display:flex; flex-direction:column; gap:12px;
+  position:relative; cursor:pointer; transition:all .2s;
+}
+.textbook-card:hover { border-color:var(--border-bright); background:var(--dark3); }
+.textbook-card::before {
+  content:''; position:absolute; top:-1px; left:10px; right:10px; height:1px;
+  background:var(--gold-dim); opacity:.5;
+}
+.textbook-icon { font-size:32px; text-align:center; }
+.textbook-name {
+  font-size:14px; font-weight:600; color:var(--gold-light);
+  word-break:break-word; flex:1;
+}
+.textbook-count { font-size:11px; color:var(--text-muted); text-align:center; }
+.textbook-actions { display:flex; gap:6px; }
+.textbook-btn {
+  flex:1; padding:8px; font-size:11px; font-family:'Noto Sans Thai',sans-serif;
+  border:1px solid var(--border); background:none; color:var(--text-muted);
+  cursor:pointer; transition:all .2s; letter-spacing:.04em;
+}
+.textbook-btn:hover { border-color:var(--border-bright); color:var(--gold-light); }
+.textbook-btn.del { color:#e05555; }
+.textbook-btn.del:hover { border-color:#e05555; }
+.add-textbook-btn {
+  border:1px dashed var(--border-bright); background:none;
+  color:var(--text-muted); font-size:13px; font-family:'Noto Sans Thai',sans-serif;
+  cursor:pointer; padding:40px 20px; transition:all .2s; letter-spacing:.04em;
+  display:flex; align-items:center; justify-content:center; flex-direction:column;
+  gap:8px; min-height:160px;
+}
+.add-textbook-btn:hover { border-color:var(--gold-dim); color:var(--gold-light); background:rgba(201,168,76,0.04); }
+
+/* MODAL */
+.overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.72); z-index:200;
+  align-items:center; justify-content:center; backdrop-filter:blur(4px);
+}
+.overlay.open { display:flex; }
+.modal {
+  background:var(--dark2); border:1px solid var(--border-bright);
+  padding:34px; width:420px; max-width:92vw; position:relative;
+}
+.modal::before {
+  content:''; position:absolute; top:-1px; left:16px; right:16px; height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.modal-title { font-family:'Noto Serif Thai',serif; font-size:16px; color:var(--gold-light); margin-bottom:20px; }
+.modal select.inp { margin-bottom:18px; cursor:pointer; }
+.modal-hint { font-size:11px; color:var(--text-muted); margin-top:-12px; margin-bottom:18px; line-height:1.7; }
+.modal-row { display:flex; gap:10px; margin-top:4px; }
+.btn-ok {
+  flex:1; padding:11px; background:var(--gold); color:var(--dark);
+  font-family:'Noto Sans Thai',sans-serif; font-size:13px; font-weight:600;
+  letter-spacing:.08em; border:none; cursor:pointer; transition:background .2s;
+}
+.btn-ok:hover { background:var(--gold-light); }
+.btn-cancel {
+  padding:11px 16px; background:none; border:1px solid var(--border);
+  color:var(--text-muted); font-family:'Noto Sans Thai',sans-serif; font-size:13px; cursor:pointer; transition:all .2s;
+}
+.btn-cancel:hover { border-color:var(--border-bright); color:var(--text); }
+
+@media(max-width:768px){
+  header { padding:18px 16px; }
+  .tabs { padding:0 12px; }
+  .content { padding:22px 16px; }
+  .home-grid { grid-template-columns:1fr; }
+  .quick-grid { grid-template-columns:1fr; }
+  .notes-area { min-height:240px; }
+  .textbooks-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-emblem">⚖</div>
+    <div class="login-title">ห้องสมุดกฎหมาย</div>
+    <div class="login-sub">Law Study Portal</div>
+    <label class="lbl">รหัสผ่าน</label>
+    <input type="password" class="inp" id="pw" placeholder="กรอกรหัสผ่าน" onkeydown="if(event.key==='Enter')login()">
+    <button class="login-btn" onclick="login()">เข้าสู่ระบบ</button>
+    <div class="login-err" id="lerr"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="h-left">
+      <div class="h-emblem">⚖</div>
+      <div>
+        <div class="h-title">ห้องสมุดกฎหมาย</div>
+        <div class="h-sub">Law Study Portal</div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
+  </header>
+  <div class="tabs" id="tabs"></div>
+  <div class="content" id="content"></div>
+</div>
+
+<!-- MODAL FILE -->
+<div class="overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title">เพิ่มไฟล์</div>
+    <label class="lbl">ชื่อไฟล์</label>
+    <input class="inp" id="m-name" placeholder="เช่น ประมวลแพ่ง ฉบับสมบูรณ์ 2567">
+    <label class="lbl">ประเภท</label>
+    <select class="inp" id="m-type">
+      <option value="pdf">📄 PDF</option>
+      <option value="img">🖼 ชีทสรุป / รูปภาพ</option>
+      <option value="doc">📝 Word / PowerPoint</option>
+      <option value="link">🔗 ลิงก์อื่นๆ</option>
+    </select>
+    <label class="lbl">ลิงก์ Google Drive หรือ URL</label>
+    <input class="inp" id="m-link" placeholder="https://drive.google.com/...">
+    <div class="modal-hint">คลิกขวาไฟล์ใน Drive → แชร์ → คัดลอกลิงก์ → ตั้งสิทธิ์ "ทุกคนที่มีลิงก์"</div>
+    <div class="modal-row">
+      <button class="btn-cancel" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn-ok" onclick="saveFile()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TEXTBOOK -->
+<div class="overlay" id="modal-textbook">
+  <div class="modal">
+    <div class="modal-title">เพิ่มหนังสือเรียน</div>
+    <label class="lbl">ชื่อหนังสือเรียน</label>
+    <input class="inp" id="tb-name" placeholder="เช่น ประมวลแพ่ง">
+    <div class="modal-row">
+      <button class="btn-cancel" onclick="closeTextbookModal()">ยกเลิก</button>
+      <button class="btn-ok" onclick="saveTextbook()">สร้าง</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PASSWORD = 'Law2568';
+const SUBJECTS = [
+  {id:'civil',    icon:'⚖️', name:'ประมวลแพ่งและพาณิชย์', short:'ป.พ.พ.', desc:'กฎหมายแพ่ง ว่าด้วยบุคคล ทรัพย์สิน นิติกรรม สัญญา ละเมิด ครอบครัว มรดก'},
+  {id:'criminal', icon:'🔏', name:'ประมวลกฎหมายอาญา',     short:'ป.อ.',    desc:'กฎหมายอาญา ว่าด้วยความผิดและโทษทางอาญา'},
+  {id:'civpro',   icon:'📋', name:'วิธีพิจารณาความแพ่ง',  short:'วิ.แพ่ง', desc:'กฎหมายวิธีพิจารณาความในคดีแพ่ง'},
+  {id:'crimpro',  icon:'🏛️', name:'วิธีพิจารณาความอาญา', short:'วิ.อาญา', desc:'กฎหมายวิธีพิจารณาความในคดีอาญา'},
+  {id:'other',    icon:'📚', name:'กฎหมายอื่นๆ',          short:'อื่นๆ',   desc:'กฎหมายรัฐธรรมนูญ กฎหมายปกครอง และกฎหมายพิเศษอื่นๆ'},
+];
+
+let state = JSON.parse(localStorage.getItem('law_v2')||'null') || initState();
+let textbooks = JSON.parse(localStorage.getItem('law_textbooks')||'null') || {};
+let notes = localStorage.getItem('law_notes') || '';
+let activeTab = 'home';
+let modalTarget = {sid:null,cid:null};
+let noteTimer = null;
+
+function initState() {
+  const s = {subjects:{}};
+  const def = ['ประมวลกฎหมาย','ชีทสรุป','หนังสือเรียน'];
+  SUBJECTS.forEach(sub => {
+    s.subjects[sub.id] = def.map((name,i)=>({id:'c'+Date.now()+i+sub.id, name, files:[]}));
+  });
+  return s;
+}
+function persist() { localStorage.setItem('law_v2',JSON.stringify(state)); }
+function persistNotes() { localStorage.setItem('law_notes',notes); }
+function persistTextbooks() { localStorage.setItem('law_textbooks',JSON.stringify(textbooks)); }
+
+/* AUTH */
+function login() {
+  if(document.getElementById('pw').value===PASSWORD) {
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    buildUI();
+  } else {
+    const b=document.querySelector('.login-box');
+    b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
+    document.getElementById('lerr').textContent='รหัสผ่านไม่ถูกต้อง';
+    document.getElementById('pw').value='';
+  }
+}
+function logout() {
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('pw').value='';
+  document.getElementById('lerr').textContent='';
+}
+
+/* UI */
+function buildUI() { buildTabs(); renderActive(); }
+
+function buildTabs() {
+  document.getElementById('tabs').innerHTML=
+    `<div class="tab ${activeTab==='home'?'active':''}" onclick="switchTab('home')">🏠 หน้าหลัก</div>`+
+    `<div class="tab ${activeTab==='textbooks'?'active':''}" onclick="switchTab('textbooks')">📚 หนังสือเรียน</div>`+
+    SUBJECTS.map(s=>`<div class="tab ${activeTab===s.id?'active':''}" onclick="switchTab('${s.id}')">${s.icon} ${s.short}</div>`).join('');
+}
+
+function switchTab(id) { activeTab=id; buildTabs(); renderActive(); }
+
+function renderActive() {
+  const c=document.getElementById('content');
+  c.innerHTML='';
+  const d=document.createElement('div');
+  d.className='fi';
+  if(activeTab==='home') d.innerHTML=renderHome();
+  else if(activeTab==='textbooks') d.innerHTML=renderTextbooks();
+  else d.innerHTML=renderSubject(activeTab);
+  c.appendChild(d);
+}
+
+/* HOME */
+function renderHome() {
+  const total=SUBJECTS.reduce((a,s)=>a+(state.subjects[s.id]||[]).reduce((b,c)=>b+c.files.length,0),0);
+  return `
+  <div class="home-grid">
+    <div>
+      <div class="home-welcome">ยินดีต้อนรับ 👋</div>
+      <div class="home-sub">คลังเก็บไฟล์นิติศาสตร์ส่วนตัว · ${total} ไฟล์ · ${SUBJECTS.length} วิชา</div>
+      <div class="quick-grid">
+        ${SUBJECTS.map(s=>{
+          const cnt=(state.subjects[s.id]||[]).reduce((a,c)=>a+c.files.length,0);
+          return `<div class="quick-card" onclick="switchTab('${s.id}')">
+            <div class="quick-icon">${s.icon}</div>
+            <div><div class="quick-name">${s.name}</div><div class="quick-count">${cnt} ไฟล์</div></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="notes-panel">
+      <div class="notes-header">
+        <div class="notes-title">📝 โน้ตของฉัน</div>
+        <div style="display:flex;align-items:center">
+          <span class="saved-badge" id="saved-badge">บันทึกแล้ว ✓</span>
+          <button class="notes-save" onclick="saveNotes()">บันทึก</button>
+        </div>
+      </div>
+      <textarea class="notes-area" id="notes-ta"
+        placeholder="จดโน้ต สรุปประเด็น หรือสิ่งที่ต้องอ่านเพิ่มได้เลย..."
+        oninput="autoSave()">${esc(notes)}</textarea>
+    </div>
+  </div>`;
+}
+
+function autoSave() {
+  clearTimeout(noteTimer);
+  noteTimer=setTimeout(saveNotes,1500);
+}
+function saveNotes() {
+  const ta=document.getElementById('notes-ta');
+  if(ta) { notes=ta.value; persistNotes(); }
+  const b=document.getElementById('saved-badge');
+  if(b){b.style.opacity='1';setTimeout(()=>b.style.opacity='0',1800);}
+}
+
+/* TEXTBOOKS */
+function renderTextbooks() {
+  const tbList = Object.entries(textbooks).map(([id,tb])=>({id,...tb}));
+  return `
+  <div style="margin-bottom:16px;">
+    <div style="font-family:'Noto Serif Thai',serif; font-size:22px; color:var(--gold-light); margin-bottom:8px;">📚 หนังสือเรียน</div>
+    <div style="font-size:13px; color:var(--text-muted); line-height:1.8;">ทำการจัดเก็บไฟล์ตามหนังสือเรียนแต่ละเล่ม</div>
+  </div>
+  <div class="textbooks-grid">
+    ${tbList.map(tb=>`
+      <div class="textbook-card" onclick="openTextbookDetail('${tb.id}')">
+        <div class="textbook-icon">📖</div>
+        <div class="textbook-name">${esc(tb.name)}</div>
+        <div class="textbook-count">${(tb.files||[]).length} ไฟล์</div>
+        <div class="textbook-actions">
+          <button class="textbook-btn" onclick="event.stopPropagation(); openTextbookFileModal('${tb.id}')">เพิ่ม</button>
+          <button class="textbook-btn del" onclick="event.stopPropagation(); delTextbook('${tb.id}')">ลบ</button>
+        </div>
+      </div>
+    `).join('')}
+    <button class="add-textbook-btn" onclick="openTextbookModal()">
+      <div style="font-size:28px;">+</div>
+      <div>เพิ่มหนังสือเรียน</div>
+    </button>
+  </div>`;
+}
+
+function openTextbookModal() {
+  document.getElementById('tb-name').value='';
+  document.getElementById('modal-textbook').classList.add('open');
+  setTimeout(()=>document.getElementById('tb-name').focus(),80);
+}
+function closeTextbookModal() {
+  document.getElementById('modal-textbook').classList.remove('open');
+}
+function saveTextbook() {
+  const name=document.getElementById('tb-name').value.trim();
+  if(!name){alert('กรุณากรอกชื่อหนังสือเรียน');return;}
+  const id='tb'+Date.now();
+  textbooks[id]={name,files:[]};
+  persistTextbooks();
+  closeTextbookModal();
+  renderActive();
+}
+function delTextbook(id) {
+  const tb=textbooks[id];
+  if(!tb) return;
+  if(tb.files.length&&!confirm(`ลบ "${tb.name}" และไฟล์ทั้งหมด?`)) return;
+  delete textbooks[id];
+  persistTextbooks();
+  renderActive();
+}
+function openTextbookDetail(id) {
+  // สามารถเพิ่มหน้า detail ในอนาคต หรือเปิด modal แสดงไฟล์ทั้งหมด
+}
+function openTextbookFileModal(tbId) {
+  modalTarget={tbId};
+  document.getElementById('m-name').value='';
+  document.getElementById('m-link').value='';
+  document.getElementById('modal').classList.add('open');
+  setTimeout(()=>document.getElementById('m-name').focus(),80);
+}
+
+/* SUBJECT */
+function renderSubject(sid) {
+  const subj=SUBJECTS.find(s=>s.id===sid);
+  const cols=state.subjects[sid]||[];
+  return `
+  <div class="subj-header">
+    <div class="subj-icon">${subj.icon}</div>
+    <div class="subj-title">${subj.name}</div>
+    <div class="subj-desc">${subj.desc}</div>
+  </div>
+  <div class="cols-wrapper">
+    ${cols.map(col=>renderCol(sid,col)).join('')}
+    <button class="add-col-btn" onclick="addCol('${sid}')">+ เพิ่มคอลัมน์</button>
+  </div>`;
+}
+
+function renderCol(sid,col) {
+  const filesHtml = col.files.length
+    ? col.files.map(f=>`
+      <a class="file-item" href="${esc(f.link)}" target="_blank" rel="noopener">
+        <div class="file-item-icon">${tIcon(f.type)}</div>
+        <div class="file-item-info">
+          <div class="file-item-name">${esc(f.name)}</div>
+          <div class="file-item-meta">${tName(f.type)}</div>
+        </div>
+        <button class="file-item-del" title="ลบ" onclick="delFile(event,'${sid}','${col.id}','${f.id}')">×</button>
+      </a>`).join('')
+    : `<div class="col-empty">ยังไม่มีไฟล์</div>`;
+  return `
+  <div class="col-box">
+    <div class="col-head">
+      <input class="col-name-edit" value="${esc(col.name)}"
+        onchange="renameCol('${sid}','${col.id}',this.value)"
+        onkeydown="if(event.key==='Enter')this.blur()">
+      <button class="col-del" title="ลบคอลัมน์" onclick="delCol('${sid}','${col.id}')">×</button>
+    </div>
+    <div class="col-files">${filesHtml}</div>
+    <button class="col-add-file" onclick="openFileModal('${sid}','${col.id}')">+ เพิ่มไฟล์</button>
+  </div>`;
+}
+
+/* COLUMNS */
+function addCol(sid) {
+  const name=prompt('ชื่อคอลัมน์ใหม่:','คอลัมน์ใหม่');
+  if(!name) return;
+  state.subjects[sid].push({id:'c'+Date.now(),name:name.trim(),files:[]});
+  persist(); renderActive();
+}
+function renameCol(sid,cid,val) {
+  const col=state.subjects[sid].find(c=>c.id===cid);
+  if(col){col.name=val.trim()||col.name; persist();}
+}
+function delCol(sid,cid) {
+  const col=state.subjects[sid].find(c=>c.id===cid);
+  if(!col) return;
+  if(col.files.length&&!confirm(`ลบคอลัมน์ "${col.name}" และไฟล์ทั้งหมด?`)) return;
+  state.subjects[sid]=state.subjects[sid].filter(c=>c.id!==cid);
+  persist(); renderActive();
+}
+
+/* FILES */
+function openFileModal(sid,cid) {
+  modalTarget={sid,cid,tbId:null};
+  document.getElementById('m-name').value='';
+  document.getElementById('m-link').value='';
+  document.getElementById('modal').classList.add('open');
+  setTimeout(()=>document.getElementById('m-name').focus(),80);
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function saveFile() {
+  const name=document.getElementById('m-name').value.trim();
+  const link=document.getElementById('m-link').value.trim();
+  const type=document.getElementById('m-type').value;
+  if(!name||!link){alert('กรุณากรอกชื่อและลิงก์');return;}
+  
+  if(modalTarget.tbId) {
+    const tb=textbooks[modalTarget.tbId];
+    if(!tb) return;
+    if(!tb.files) tb.files=[];
+    tb.files.push({id:'f'+Date.now(),name,link,type});
+    persistTextbooks();
+  } else {
+    const col=state.subjects[modalTarget.sid].find(c=>c.id===modalTarget.cid);
+    if(!col) return;
+    col.files.push({id:'f'+Date.now(),name,link,type});
+    persist();
+  }
+  closeModal(); renderActive();
+}
+function delFile(e,sid,cid,fid) {
+  e.preventDefault(); e.stopPropagation();
+  if(!confirm('ลบไฟล์นี้?')) return;
+  const col=state.subjects[sid].find(c=>c.id===cid);
+  if(col){col.files=col.files.filter(f=>f.id!==fid); persist(); renderActive();}
+}
+
+/* HELPERS */
+function tIcon(t){return{pdf:'📄',img:'🖼',doc:'📝',link:'🔗'}[t]||'📄';}
+function tName(t){return{pdf:'PDF',img:'รูปภาพ',doc:'เอกสาร',link:'ลิงก์'}[t]||'ไฟล์';}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+document.getElementById('modal-textbook').addEventListener('click',e=>{if(e.target===e.currentTarget)closeTextbookModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeTextbookModal();}});
+</script>
+</body>
+</html>
